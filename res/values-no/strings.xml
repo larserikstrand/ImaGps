@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    
+    <string name="app_name">ImaGps</string>
+    <string name="action_settings">Innstillinger</string>
+    <string name="button_camera">Ta Bilde</string>
+    <string name="button_map">Se Kart</string>
+    <string name="title_activity_map">Kart</string>
+    <string name="title_activity_view_image">Se Bilde</string>
+    <string name="image_description">Bilde</string>
+    <string name="image_saved">Bilde lagret til</string>
+    <string name="camera_return_error">Feil i bildehåndtering fra Kamera</string>
+    <string name="info_window_thumbnail">Miniatyrbilde</string>
+    <string name="location_unavailable">Feil i innhenting av lokasjon</string>
+    
+</resources>
