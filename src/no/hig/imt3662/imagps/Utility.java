@@ -2,19 +2,54 @@ package no.hig.imt3662.imagps;
 
 import java.io.File;
 
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
+import android.provider.Settings;
 
 
 /**
  * Utility class that holds methods that are activity independent
- * and used by multiple activities.
+ * and possible to use by multiple activities.
  * @author LarsErik
  *
  */
 public final class Utility {
+	
+	
+	
+	/**
+	 * Creates an alert dialog to ask if the user wants to enable GPS.
+	 * @param activity - The activity in which to create the dialog.
+	 */
+	public static void enableGPSDialog(final Activity activity) {
+		final AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+		final String action = Settings.ACTION_LOCATION_SOURCE_SETTINGS;
+		final String message = activity.getString(R.string.GPS_alert);
+		
+		builder.setMessage(message);
+		builder.setPositiveButton(activity.getString(R.string.enable),
+				new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						activity.startActivity(new Intent(action));
+						dialog.dismiss();
+					}
+				});
+		builder.setNegativeButton(activity.getString(R.string.cancel),
+				new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						dialog.cancel();
+					}
+				});
+		builder.create().show();
+	}
 	
 	
 	

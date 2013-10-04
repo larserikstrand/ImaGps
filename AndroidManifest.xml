@@ -13,7 +13,6 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <uses-feature android:name="android.hardware.camera" />
@@ -43,11 +42,6 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="no.hig.imt3662.imagps.MainActivity" />
         </activity>
-
-        <meta-data
-            android:name="com.google.android.maps.v2.API_KEY"
-            android:value="AIzaSyAXBO_nTXaEDu9KiZQ7F3yMhfh49vMLk04" />
-
         <activity
             android:name="no.hig.imt3662.imagps.ViewImageActivity"
             android:label="@string/title_activity_view_image"
@@ -64,6 +58,10 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="no.hig.imt3662.imagps.MainActivity" />
         </activity>
+        
+        <meta-data
+            android:name="com.google.android.maps.v2.API_KEY"
+            android:value="AIzaSyAXBO_nTXaEDu9KiZQ7F3yMhfh49vMLk04" />
     </application>
 
 </manifest>

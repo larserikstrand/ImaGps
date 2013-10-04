@@ -6,17 +6,19 @@ import java.util.Date;
 import java.util.List;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
+import android.app.Dialog;
+import android.app.DialogFragment;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.location.Location;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -27,7 +29,10 @@ import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
+import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.location.LocationClient;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
 
 /**
  * The starting screen of the application. From here, the user can choose
@@ -35,14 +40,11 @@ import com.google.android.gms.location.LocationClient;
  * @author Lars Erik Strand, Amund Sørumshagen, Olav Brenna Hansen
  *
  */
-public class MainActivity extends Activity implements 
+public class MainActivity extends FragmentActivity implements 
 		GooglePlayServicesClient.ConnectionCallbacks,
 		GooglePlayServicesClient.OnConnectionFailedListener {
 	
 	private static final int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 100;
-	// Used with the Google Location Client API.
-	private static final int
-    CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
 	private static final int ABOUT_ID = Menu.FIRST;
 	
 	private Uri mImageUri;
@@ -55,24 +57,51 @@ public class MainActivity extends Activity implements
 
 	
 	
+	/**
+	 * 
+	 * @author LarsErik
+	 *
+	 */
+	public static class ErrorDialogFragment extends DialogFragment {
+		private Dialog mDialog;
+		
+		public ErrorDialogFragment() {
+			super();
+			mDialog = null;
+		}
+		
+		public void setDialog(Dialog dialog) {
+			mDialog = dialog;
+		}
+
+		@Override
+		public Dialog onCreateDialog(Bundle savedInstanceState) {
+			return mDialog;
+		}
+	}
+	
+	
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		
 		setupUI();
+		
 		// Instantiate the handler to the SQLite Database
 		mDbHandler = new DatabaseHandler(this);
 		mDbHandler.open();
-		
-		mLocationClient = new LocationClient(this, this, this);
+				
+		checkGPSEnabled();
+		checkLocationService();
 	}
 
 	
 	
 	@Override
-	protected void onStart() {
-		super.onStart();
+	protected void onResume() {
+		super.onResume();
 		mLocationClient.connect();
 	}
 	
@@ -110,9 +139,9 @@ public class MainActivity extends Activity implements
 		
 		return super.onMenuItemSelected(featureId, item);
 	}
-
 	
-
+	
+	
 	/**
 	 * Sets up the UI with event handlers.
 	 */
@@ -135,6 +164,36 @@ public class MainActivity extends Activity implements
 			}
 		});
 	}
+
+
+	
+	/**
+	 * Checks if the GPS is enabled. If not, ask the user to enable.
+	 */
+	private void checkGPSEnabled() {
+		final LocationManager locationManager = (LocationManager) getSystemService(
+				Context.LOCATION_SERVICE);
+		if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+			Utility.enableGPSDialog(this);
+		}
+	}
+	
+	
+	
+	/**
+	 * Checks to see if the Google play services is available
+	 */
+	private void checkLocationService() {
+		int gpsExists = GooglePlayServicesUtil.
+				isGooglePlayServicesAvailable(this);
+		if (gpsExists == ConnectionResult.SUCCESS) {
+			mLocationClient = new LocationClient(this, this, this);
+		} else {
+			// Notify the user that location service is unavailable.
+			Toast.makeText(this, this.getString(R.string.gps_unavailable),
+					Toast.LENGTH_LONG).show();
+		}
+	}
 	
 	
 	
@@ -148,8 +207,6 @@ public class MainActivity extends Activity implements
 			
 			// Get the destination for the camera to store the image.
 			mImageUri = getOutputImageFileUri();
-			// Get the current location to associate with the image.
-			mCurrentLocation = mLocationClient.getLastLocation();
 
 			// Check if image storage destination exists.
 			if (mImageUri != null) {
@@ -192,22 +249,28 @@ public class MainActivity extends Activity implements
 	@Override
 	protected void onActivityResult(
 			int requestCode, int resultCode, Intent data) {
+		
 		super.onActivityResult(requestCode, resultCode, data);
-		// Check to see if this was fired by the camera.
-		if (requestCode == CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE) {
-			if (resultCode == RESULT_OK) {
+		
+		switch (requestCode) {
+		
+		case CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE:
+			switch (resultCode) {
+			case RESULT_OK:
 				handleCameraResponse();
+				break;
 			// User canceled the activity
-			} else if (resultCode == RESULT_CANCELED) {
-				return;
+			case RESULT_CANCELED:
+				break;
 			// Something went wrong using the camera. Notify user
-			} else {
+			default:
 				Toast.makeText(this,
 						this.getString(R.string.camera_return_error),
 						Toast.LENGTH_LONG).show();
 			}
 		}
 	}
+	
 	
 	
 	/**
@@ -291,27 +354,25 @@ public class MainActivity extends Activity implements
 			outState.putParcelable("LOC", mCurrentLocation);
 		}
 	}
-
-
 	
+	
+	
+	/**
+	 * Request location updates from the location client.
+	 * Called when the location service is connected, i.e. whenever
+	 * the application resumes.
+	 */
 	@Override
-	public void onConnectionFailed(ConnectionResult connectionResult) {
-		if (connectionResult.hasResolution()) {
-            try {
-                // Start an Activity that tries to resolve the error
-                connectionResult.startResolutionForResult(
-                        this, CONNECTION_FAILURE_RESOLUTION_REQUEST);
-                /*
-                 * Thrown if Google Play services canceled the original
-                 * PendingIntent
-                 */
-            } catch (IntentSender.SendIntentException e) {
-                e.printStackTrace();
-            }
-        } else {
-            Toast.makeText(this, connectionResult.getErrorCode(),
-            		Toast.LENGTH_LONG).show();
-        }
+	public void onConnected(Bundle bundle) {
+		LocationRequest request = LocationRequest.create();
+		request.setNumUpdates(1);
+		request.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+		mLocationClient.requestLocationUpdates(request, new LocationListener() {
+			@Override
+			public void onLocationChanged(Location location) {
+				mCurrentLocation = location;
+			}
+		});
 	}
 
 	
@@ -320,17 +381,9 @@ public class MainActivity extends Activity implements
 	 * Methods required by the Location Client API.
 	 */
 	@Override
-	public void onConnected(Bundle bundle) {
-		
-	}
-
+	public void onDisconnected() {}
 	
-
 	@Override
-	public void onDisconnected() {
-		
-	}
-	
-	
+	public void onConnectionFailed(ConnectionResult connectionResult) {}
 
 }

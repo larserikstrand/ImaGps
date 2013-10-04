@@ -13,8 +13,12 @@
     <string name="camera_return_error">Feil i bildehåndtering fra Kamera</string>
     <string name="info_window_thumbnail">Miniatyrbilde</string>
     <string name="location_unavailable">Feil i innhenting av lokasjon</string>
+    <string name="gps_unavailable">Google Play Services er ikke tilgjengelig</string>
     <string name="about">Om</string>
     <string name="title_activity_about">Om</string>
     <string name="about_text">Applikasjonen er laget av studenter på Høgskolen i Gjøvik:\nOlav Brenna Hansen\nLars Erik Strand\nAmund Sørumshagen</string>
+    <string name="GPS_alert">GPS er avslått. Slå på GPS for forbedret lokalisering</string>
+    <string name="cancel">Avbryt</string>
+    <string name="enable">Slå på</string>
     
 </resources>
