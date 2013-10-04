@@ -14,7 +14,7 @@ import android.util.Log;
  *
  */
 public class DatabaseHandler {
-	// Database columns.
+	// Database column names.
 	public static final String KEY_URI = "uri";
 	public static final String KEY_LAT = "latitude";
 	public static final String KEY_LNG = "longitude";

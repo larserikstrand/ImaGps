@@ -9,8 +9,12 @@
     <string name="title_activity_view_image">View Image</string>
     <string name="image_description">Image</string>
     <string name="image_saved">Image saved to</string>
+    <string name="camera_unavailable">Could not find camera application</string>
     <string name="camera_return_error">Failed to return image from Camera</string>
     <string name="info_window_thumbnail">Image Thumbnail</string>
     <string name="location_unavailable">Failed to retrieve Location</string>
+    <string name="about">About</string>
+    <string name="title_activity_about">About</string>
+    <string name="about_text">The application is made by students at Gjøvik University College:\nOlav Brenna Hansen\nLars Erik Strand\nAmund Sørumshagen</string>
 
 </resources>

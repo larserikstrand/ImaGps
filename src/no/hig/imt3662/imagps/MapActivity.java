@@ -6,14 +6,9 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
-import android.media.ExifInterface;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
@@ -28,10 +23,17 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+
+/**
+ * Class that displays the map and handles interactions with the map.
+ * @author Lars Erik, Amund Sørumshagen
+ *
+ */
 public class MapActivity extends Activity {	
 	private GoogleMap mMap;
 	private DatabaseHandler mDbHandler;
 	
+	// Size of image thumbnail to be used in infowindow.
 	public static final int THUMBNAIL_SIZE = 100;
 	public static final String EXTRA_IMAGEPATH = "no.hig.imt3662.imagps.IMAGEPATH";
 
@@ -55,26 +57,20 @@ public class MapActivity extends Activity {
 	
 	
 	/**
-	 * Set up the {@link android.app.ActionBar}, if the API is available.
+	 * Set up the {@link android.app.ActionBar}.
 	 */
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	private void setupActionBar() {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-			getActionBar().setDisplayHomeAsUpEnabled(true);
-		}
+		
+		getActionBar().setDisplayHomeAsUpEnabled(true);
+		
 	}
 
 	
 	
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.map, menu);
-		return true;
-	}
-
-	
-	
+	/**
+	 * Allows user to go one step back (up) from this activity.
+	 */
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
@@ -87,12 +83,17 @@ public class MapActivity extends Activity {
 	
 	
 	
+	/**
+	 * Sets up the Google map with listeners and handlers.
+	 */
 	private void setupMap() {
 		mMap = ((MapFragment) getFragmentManager().
 				findFragmentById(R.id.map)).getMap();
 		
+		// Enable button to find the users location.
 		mMap.setMyLocationEnabled(true);
 		
+		// Display an info window when a marker is clicked.
 		mMap.setOnMarkerClickListener(new OnMarkerClickListener() {
 			@Override
 			public boolean onMarkerClick(Marker marker) {
@@ -101,12 +102,18 @@ public class MapActivity extends Activity {
 			}
 		});
 		
+		// Sets up the info window.
 		mMap.setInfoWindowAdapter(new InfoWindowAdapter() {
+			// Do nothing with the layout of the window.
 			@Override
 			public View getInfoWindow(Marker marker) {
 				return null;
 			}
 			
+			/*
+			 * Set the content of the info window to display the image title
+			 * and the corresponding image thumbnail bitmap
+			 */
 			@Override
 			public View getInfoContents(Marker marker) {
 				View view = getLayoutInflater().inflate(
@@ -119,7 +126,7 @@ public class MapActivity extends Activity {
 				textView.setText(marker.getTitle());
 						
 				imageView.setImageBitmap(
-						decodeSampledBitmapFromFile(
+						Utility.decodeSampledBitmapFromFile(
 								new File(marker.getSnippet()),
 								THUMBNAIL_SIZE, THUMBNAIL_SIZE));
 				
@@ -127,6 +134,7 @@ public class MapActivity extends Activity {
 			}
 		});
 		
+		// Start activity to view the image in the info window when clicked.
 		mMap.setOnInfoWindowClickListener(new OnInfoWindowClickListener() {
 			@Override
 			public void onInfoWindowClick(Marker marker) {
@@ -140,12 +148,23 @@ public class MapActivity extends Activity {
 	
 	
 
+	/**
+	 * Gets locations of images from the SQLite database and 
+	 * displays them on the map as markers.
+	 */
 	private void addMapMarkers() {
 		Cursor c = mDbHandler.fetchEntries();
 		if(c.moveToFirst()) {
 			do {
+				// Get the path.
 				String uri = c.getString(1);
-				String title = uri.substring(uri.indexOf("IMG_"));
+				String title = uri.substring(uri.indexOf(
+						MainActivity.IMAGE_FILE_PREFIX));
+				/*
+				 * Add the marker to the map, holding the image data.
+				 * Only the position is directly shown on the map.
+				 * The rest of the data is used by the info window listener.
+				 */
 				mMap.addMarker(new MarkerOptions()
 					.position(new LatLng(
 							Double.parseDouble(c.getString(2)),
@@ -159,59 +178,5 @@ public class MapActivity extends Activity {
 	}
 	
 	
-	
-	public static Bitmap decodeSampledBitmapFromFile(File file,
-			int reqWidth, int reqHeight) {
-		BitmapFactory.Options options = new BitmapFactory.Options();
-		// Avoid memory allocation.
-		options.inJustDecodeBounds = true;
-		BitmapFactory.decodeFile(file.getPath(), options);
-		
-		options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
-		options.inJustDecodeBounds = false;
-		
-		Bitmap bitmap = BitmapFactory.decodeFile(file.getPath(), options);
-		
-		try {
-            ExifInterface exif = new ExifInterface(file.getPath());
-            int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 1);
-            Matrix matrix = new Matrix();
-            if (orientation == ExifInterface.ORIENTATION_ROTATE_90) {
-                matrix.postRotate(90);
-            }
-            else if (orientation == ExifInterface.ORIENTATION_ROTATE_180) {
-                matrix.postRotate(180);
-            }
-            else if (orientation == ExifInterface.ORIENTATION_ROTATE_270) {
-                matrix.postRotate(270);
-            }
-            bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(),
-            		bitmap.getHeight(), matrix, true);
-        }
-        catch (Exception e) {
-        	e.printStackTrace();
-        }
-		return bitmap;
-	}
-	
-	
-	
-	public static int calculateInSampleSize(
-			BitmapFactory.Options options, int reqWidth, int reqHeight) {
-		// Height and width of the original image.
-		final int height = options.outHeight;
-		final int width = options.outWidth;
-		int inSampleSize = 1;
-		
-		if (height > reqHeight || width > reqWidth) {
-			final int heightRatio = Math.round(
-					(float) height / (float) reqHeight);
-			final int widthRatio = Math.round(
-					(float) width / (float) reqWidth);
-			inSampleSize = heightRatio < widthRatio ? heightRatio : widthRatio;
-		}
-		
-		return inSampleSize;
-	}
 	
 }

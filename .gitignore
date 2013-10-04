@@ -1,3 +1,16 @@
+#generated files
 bin
 gen
+
+#built application files
+*.apk
+*.ap_
+
+#Java class files
+*.class
+
+.project
+*.swp
+.classpath
+.settings/
 

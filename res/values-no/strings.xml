@@ -9,8 +9,12 @@
     <string name="title_activity_view_image">Se Bilde</string>
     <string name="image_description">Bilde</string>
     <string name="image_saved">Bilde lagret til</string>
+    <string name="camera_unavailable">Fant ingen applikasjon for kamera</string>
     <string name="camera_return_error">Feil i bildehåndtering fra Kamera</string>
     <string name="info_window_thumbnail">Miniatyrbilde</string>
     <string name="location_unavailable">Feil i innhenting av lokasjon</string>
+    <string name="about">Om</string>
+    <string name="title_activity_about">Om</string>
+    <string name="about_text">Applikasjonen er laget av studenter på Høgskolen i Gjøvik:\nOlav Brenna Hansen\nLars Erik Strand\nAmund Sørumshagen</string>
     
 </resources>

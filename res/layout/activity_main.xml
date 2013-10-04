@@ -15,7 +15,8 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="50dp"
-        android:text="@string/button_camera" />
+        android:text="@string/button_camera"
+        android:drawableRight="@drawable/device_access_camera" />
     
     <Button android:id="@+id/button_map"
         android:layout_below="@id/button_camera"
@@ -23,12 +24,7 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="20dp"
-        android:text="@string/button_map" />
-    
-    <TextView android:id="@+id/view_text"
-        android:layout_below="@id/button_map"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true" />
+        android:text="@string/button_map"
+        android:drawableRight="@drawable/location_map" />
 
 </RelativeLayout>

@@ -4,17 +4,22 @@ import java.io.File;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Point;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.view.Display;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
 
+
+/**
+ * Class that displays an image whose path is sent via an intent.
+ * @author Olav Brenna Hansen
+ *
+ */
 public class ViewImageActivity extends Activity {
 	private String mImagePath;
 
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -25,6 +30,8 @@ public class ViewImageActivity extends Activity {
 		setupUI();
 	}
 
+	
+	
 	/**
 	 * Set up the {@link android.app.ActionBar}.
 	 */
@@ -34,24 +41,15 @@ public class ViewImageActivity extends Activity {
 
 	}
 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.view_image, menu);
-		return true;
-	}
+	
 
+	/**
+	 * Allows user to go one step back (up) from this activity.
+	 */
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case android.R.id.home:
-			// This ID represents the Home or Up button. In the case of this
-			// activity, the Up button is shown. Use NavUtils to allow users
-			// to navigate up one level in the application structure. For
-			// more details, see the Navigation pattern on Android Design:
-			//
-			// http://developer.android.com/design/patterns/navigation.html#up-vs-back
-			//
 			NavUtils.navigateUpFromSameTask(this);
 			return true;
 		}
@@ -60,22 +58,34 @@ public class ViewImageActivity extends Activity {
 	
 	
 	
+	/**
+	 * Sets up the image
+	 */
+	@SuppressWarnings("deprecation")
 	private void setupUI() {
 		Intent intent = getIntent();
 		
 		mImagePath = intent.getStringExtra(MapActivity.EXTRA_IMAGEPATH);
 
 		ImageView imageView = (ImageView) findViewById(R.id.view_image);
+		
+		// Get the dimensions of the device screen to use as image dimensions.
 		Display display = getWindowManager().getDefaultDisplay();
+		
 		int width = display.getWidth();
 		int height = display.getHeight();
+		
+		// Retrieve bitmap of image and assign it to the view.
 		imageView.setImageBitmap(
-				MapActivity.decodeSampledBitmapFromFile(
+				Utility.decodeSampledBitmapFromFile(
 						new File(mImagePath), width, height));
 	}
 	
 	
 	
+	/**
+	 * Handle orientation change.
+	 */
 	@Override
 	protected void onRestoreInstanceState(Bundle savedInstanceState) {
 		super.onRestoreInstanceState(savedInstanceState);

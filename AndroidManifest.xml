@@ -56,6 +56,14 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="no.hig.imt3662.imagps.MapActivity" />
         </activity>
+        <activity
+            android:name="no.hig.imt3662.imagps.AboutActivity"
+            android:label="@string/title_activity_about"
+            android:parentActivityName="no.hig.imt3662.imagps.MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="no.hig.imt3662.imagps.MainActivity" />
+        </activity>
     </application>
 
 </manifest>
